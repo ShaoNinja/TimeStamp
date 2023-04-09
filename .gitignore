@@ -1,0 +1,17 @@
+# 参考链接：https://www.cnblogs.com/kevingrace/p/5690241.html
+# 重点：Git忽略规则(.gitignore配置）不生效原因和解决
+# 解决方法: git清除本地缓存（改变成未track状态）
+# $ git rm -r --cached .
+# $ git add .
+
+# 忽略根目录下的文件夹
+/etc/
+
+# 忽略任意子目录下的文件夹
+__pycache__/
+.ipynb_checkpoints/
+.vscode/
+# 以/结尾代表这是文件夹名称，而不是文件名
+
+# docx的临时文件
+*.tmp
