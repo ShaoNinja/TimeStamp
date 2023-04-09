@@ -3,7 +3,8 @@ from datetime import date, datetime, timedelta, timezone
 import math
 
 tz_utc = timezone.utc
-mjd0_datetime = datetime(1858, 11, 17, 0, tzinfo=timezone.utc)  # 简化儒略日起始日
+tz_local = datetime.now().astimezone().tzinfo             # 获取系统时区
+mjd0_datetime = datetime(1858, 11, 17, 0, tzinfo=tz_utc)  # 简化儒略日起始日
 
 # mjd 转 dateutc
 def mjd2dateutc(mjd):
@@ -36,16 +37,19 @@ class dateutc(datetime):
 
     def __repr__(self):
         """Convert to formal string, for repr()."""
-        assert self.tzinfo == timezone.utc
+        assert self.tzinfo == tz_utc
         L = [self.year, self.month, self.day, self.hour,
-             self.minute, self.second + self.microsecond/1.E6]
+            self.minute, self.second + self.microsecond/1.E6]
         return self.__class__.__qualname__ + "(%s)" % ", ".join(map(str, L))
 
     # 减法运算需要重写父类方法，加法运算可直接调用父类方法
     def __sub__(self, other):
         '''减法运算'''
         if type(other) is datetime and other.tzinfo is not tz_utc:
-            return super().__sub__(other.astimezone(tz=tz_utc))
+            if other.tzinfo is not None:
+                return super().__sub__(other.astimezone(tz_utc))
+            else:
+                return super().__sub__(other.replace(tzinfo=tz_local).astimezone(tz_utc))
         else:
             return super().__sub__(other)
 
@@ -106,10 +110,13 @@ class dateutc(datetime):
         return dateutc(date.year, date.month, date.day)
 
     def fromdatetime(datetime:datetime):
-        '''将 datetime 转化为 dateutc, 如果 datetime 没有时区信息, 则默认为本地时区'''
-        tmp = datetime.astimezone(tz=tz_utc)
-        return dateutc(tmp.year, tmp.month, tmp.day, tmp.hour, tmp.minute,
-                       tmp.second, tmp.microsecond, tmp.tzinfo, fold=tmp.fold)
+        '''将 datetime 转化为 dateutc, 如果 datetime 没有时区信息, 需要先设置为系统时区'''
+        if datetime.tzinfo is not None:
+            tmp = datetime.astimezone(tz_utc)
+        else:
+            tmp = datetime.replace(tzinfo=tz_local).astimezone(tz_utc)
+        return dateutc (tmp.year, tmp.month, tmp.day, tmp.hour, tmp.minute,
+                        tmp.second, tmp.microsecond, tmp.tzinfo, fold=tmp.fold)
 
     @property  # 转化为父类(datetime)
     def to_datetime(self) -> datetime:

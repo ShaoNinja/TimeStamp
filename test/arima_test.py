@@ -20,7 +20,7 @@ np.array(model_f.order)
 ## 绘图对比
 import matplotlib.pyplot as plt
 
-import TimeStamps.plot.figure as fig
+import TimeStamp.utils.figure as fig
 
 fig.plot(range(0,1000),data_fitted)
 

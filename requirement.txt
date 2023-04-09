@@ -1,4 +1,4 @@
-pandas>=0.18.0
-requests>=2.0.0
-matplotlib
 numpy
+pandas
+pmdarima     
+matplotlib  
